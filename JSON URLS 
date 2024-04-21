@@ -1,0 +1,63 @@
+import json
+from datetime import datetime, timedelta
+
+#def generate_urls(data_types, start_date='2018-01-01', end_date=datetime.2019-01-01.strftime('%Y-%m-%d')):
+#def generate_urls(data_types, start_date='2018-01-01', end_date=datetime.strptime('2019-01-31', '%Y-%m-%d').strftime('%Y-%m-%d')):
+def generate_urls(data_types, start_date='2018-01-01', end_date='2019-01-31'):
+    # Your function body here
+    pass
+    base_url = 'https://d37ci6vzurychx.cloudfront.net/trip-data/'
+    urls = []
+
+    # Convert start_date and end_date strings to datetime objects
+    start_date = datetime.strptime(start_date, '%Y-%m-%d')
+    end_date = datetime.strptime(end_date, '%Y-%m-%d')
+
+    # Iterate through each date from start_date to end_date
+    current_date = start_date
+    while current_date <= end_date:
+        year_month = current_date.strftime('%Y-%m')
+        for data_type in data_types:
+            filename = f"{data_type}_tripdata_{year_month}.parquet"
+            url = f"{base_url}{filename}"
+            urls.append({'url': url, 'filename': filename})
+        
+        # Move to the next month
+        current_date += timedelta(days=31)  # Assuming 31 days in a month
+        
+    return urls
+
+# Function to save URLs to a JSON file
+def save_urls_to_json(urls, file_name):
+    with open(file_name, 'w') as f:
+        json.dump(urls, f, indent=4)
+
+# Function to read and output JSON file contents
+def output_json_file_contents(file_name):
+    with open(file_name, 'r') as f:
+        data = json.load(f)
+        print(json.dumps(data, indent=4))
+
+# Function to save listed URLs as a JSON file
+def save_listed_urls_to_json(urls, file_name):
+    with open(file_name, 'w') as f:
+        json.dump(urls, f, indent=4)
+
+# Test the function
+data_types = ['yellow', 'green']#, 'fhv', 'fhvhv']
+urls_file_name = 'urls.json'
+listed_urls_file_name = 'dict_listed_urls_y_and_g.json'  # Changed file name here
+
+urls = generate_urls(data_types)
+save_urls_to_json(urls, urls_file_name)
+print("JSON file contents:")
+output_json_file_contents(urls_file_name)
+
+# Save listed URLs to a separate JSON file
+save_listed_urls_to_json(urls, listed_urls_file_name)
+print(f"Listed URLs saved to '{listed_urls_file_name}'.")
+
+import os
+
+file_path = os.path.abspath("dict_listed_urls_y_and_g.json")
+print("File saved at:", file_path)
