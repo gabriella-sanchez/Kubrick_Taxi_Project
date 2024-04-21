@@ -1,0 +1,384 @@
+{
+    "name": "pipeline1",
+    "properties": {
+        "activities": [
+            {
+                "name": "Lookup1",
+                "type": "Lookup",
+                "dependsOn": [],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "source": {
+                        "type": "JsonSource",
+                        "storeSettings": {
+                            "type": "AzureBlobFSReadSettings",
+                            "recursive": true,
+                            "enablePartitionDiscovery": false
+                        },
+                        "formatSettings": {
+                            "type": "JsonReadSettings"
+                        }
+                    },
+                    "dataset": {
+                        "referenceName": "Jsondict",
+                        "type": "DatasetReference"
+                    },
+                    "firstRowOnly": false
+                }
+            },
+            {
+                "name": "ForEach1",
+                "type": "ForEach",
+                "dependsOn": [
+                    {
+                        "activity": "Lookup1",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "userProperties": [],
+                "typeProperties": {
+                    "items": {
+                        "value": "@activity('Lookup1').output.value",
+                        "type": "Expression"
+                    },
+                    "activities": [
+                        {
+                            "name": "Copy data1",
+                            "type": "Copy",
+                            "dependsOn": [],
+                            "policy": {
+                                "timeout": "0.12:00:00",
+                                "retry": 0,
+                                "retryIntervalInSeconds": 30,
+                                "secureOutput": false,
+                                "secureInput": false
+                            },
+                            "userProperties": [],
+                            "typeProperties": {
+                                "source": {
+                                    "type": "ParquetSource",
+                                    "storeSettings": {
+                                        "type": "HttpReadSettings",
+                                        "requestMethod": "GET"
+                                    },
+                                    "formatSettings": {
+                                        "type": "ParquetReadSettings"
+                                    }
+                                },
+                                "sink": {
+                                    "type": "ParquetSink",
+                                    "storeSettings": {
+                                        "type": "AzureBlobFSWriteSettings"
+                                    },
+                                    "formatSettings": {
+                                        "type": "ParquetWriteSettings"
+                                    }
+                                },
+                                "enableStaging": false,
+                                "translator": {
+                                    "type": "TabularTranslator",
+                                    "typeConversion": true,
+                                    "typeConversionSettings": {
+                                        "allowDataTruncation": true,
+                                        "treatBooleanAsNumber": false
+                                    }
+                                }
+                            },
+                            "inputs": [
+                                {
+                                    "referenceName": "httpsource",
+                                    "type": "DatasetReference",
+                                    "parameters": {
+                                        "filename": {
+                                            "value": "@item().filename",
+                                            "type": "Expression"
+                                        }
+                                    }
+                                }
+                            ],
+                            "outputs": [
+                                {
+                                    "referenceName": "sink",
+                                    "type": "DatasetReference"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            },
+            {
+                "name": "green_pipeline_execute",
+                "type": "ExecutePipeline",
+                "dependsOn": [
+                    {
+                        "activity": "truncate error_log",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "pipeline": {
+                        "referenceName": "green_error_pipeline",
+                        "type": "PipelineReference"
+                    },
+                    "waitOnCompletion": true
+                }
+            },
+            {
+                "name": "yellow_pipeline_execute",
+                "type": "ExecutePipeline",
+                "dependsOn": [
+                    {
+                        "activity": "truncate error_log",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "pipeline": {
+                        "referenceName": "yellow_error_pipeline",
+                        "type": "PipelineReference"
+                    },
+                    "waitOnCompletion": true
+                }
+            },
+            {
+                "name": "truncate error_log",
+                "type": "Script",
+                "dependsOn": [
+                    {
+                        "activity": "copy into green_bronze",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    },
+                    {
+                        "activity": "copy into yellow_bronze",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "linkedServiceName": {
+                    "referenceName": "Snowflake1",
+                    "type": "LinkedServiceReference"
+                },
+                "typeProperties": {
+                    "scripts": [
+                        {
+                            "type": "NonQuery",
+                            "text": "truncate table nyc_taxi_project.public.error_log;"
+                        }
+                    ],
+                    "scriptBlockExecutionTimeout": "02:00:00"
+                }
+            },
+            {
+                "name": "yellow_warning",
+                "type": "ExecutePipeline",
+                "dependsOn": [
+                    {
+                        "activity": "truncate error_log",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "pipeline": {
+                        "referenceName": "yellow_warning",
+                        "type": "PipelineReference"
+                    },
+                    "waitOnCompletion": true
+                }
+            },
+            {
+                "name": "green_warning",
+                "type": "ExecutePipeline",
+                "dependsOn": [
+                    {
+                        "activity": "truncate error_log",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "pipeline": {
+                        "referenceName": "green_warning",
+                        "type": "PipelineReference"
+                    },
+                    "waitOnCompletion": true
+                }
+            },
+            {
+                "name": "Execute silver table pipeline",
+                "type": "ExecutePipeline",
+                "dependsOn": [
+                    {
+                        "activity": "green_pipeline_execute",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    },
+                    {
+                        "activity": "yellow_pipeline_execute",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    },
+                    {
+                        "activity": "yellow_warning",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    },
+                    {
+                        "activity": "green_warning",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "pipeline": {
+                        "referenceName": "silver table pipeline",
+                        "type": "PipelineReference"
+                    },
+                    "waitOnCompletion": true
+                }
+            },
+            {
+                "name": "Execute gold table pipeline",
+                "type": "ExecutePipeline",
+                "dependsOn": [
+                    {
+                        "activity": "Execute silver table pipeline",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "pipeline": {
+                        "referenceName": "gold table pipeline",
+                        "type": "PipelineReference"
+                    },
+                    "waitOnCompletion": true
+                }
+            },
+            {
+                "name": "copy into green_bronze",
+                "type": "Script",
+                "dependsOn": [
+                    {
+                        "activity": "ForEach1",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "linkedServiceName": {
+                    "referenceName": "Snowflake1",
+                    "type": "LinkedServiceReference"
+                },
+                "typeProperties": {
+                    "scripts": [
+                        {
+                            "type": "NonQuery",
+                            "text": "COPY INTO nyc_taxi_project.public.green_bronze \n(VENDORID, PICKUP_DATETIME,DROPOFF_DATETIME, PASSENGER_COUNT, TRIP_DISTANCE, PULOCATIONID,DOLOCATIONID, RATECODEID, STORE_AND_FXD_FLAG, PAYMENT_TYPE, FARE_AMOUNT, EXTRA, MTA_TAX, IMPROVEMENT_SURCHARGE, TIP_AMOUNT, TOLLS_AMOUNT, TOTAL_AMOUNT, TRIP_TYPE)\nFROM (\nselect\n    $1:VendorID::STRING                                  VendorID\n    ,$1:lpep_pickup_datetime::VARCHAR::timestamp_NTZ     pickup_datetime\n   ,$1:lpep_dropoff_datetime::VARCHAR::timestamp_NTZ     dropoff_datetime\n   , $1:passenger_count::INT                              Passenger_count\n   , $1:trip_distance::FLOAT                             trip_distance\n   , $1:PULocationID::int                                 PULocationId\n   , $1:DOLocationID::int                             DOLocationID\n   , $1:RatecodeID::INT                                  RateCodeID\n   , $1:store_and_fwd_flag::STRING                       Store_and_fxd_flag\n   , $1:payment_type::INT                                Payment_type            \n   , $1:fare_amount::decimal (10,2)                       fare_amount\n   , $1:extra::decimal(10,2)                               Extra\n   , $1:mta_tax::decimal(10,2)                             mta_tax\n   , $1:improvement_surcharge::decimal(10,2)                   improvement_surcharge\n   , $1:tip_amount::decimal (10,2)                              tip_amount\n   , $1:tolls_amount::decimal (10,2)                           tolls_amount\n   , $1:total_amount::decimal (10,2)                             total_amount\n   , $1:trip_type:: int                                          trip_type\nfrom @nyc_taxi_project.public.azure_project_stage_gs\n(file_format =>nyc_taxi_project.public.parquet_taxigs, pattern => '.*green.*')\n);"
+                        }
+                    ],
+                    "scriptBlockExecutionTimeout": "02:00:00"
+                }
+            },
+            {
+                "name": "copy into yellow_bronze",
+                "type": "Script",
+                "dependsOn": [
+                    {
+                        "activity": "ForEach1",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "linkedServiceName": {
+                    "referenceName": "Snowflake1",
+                    "type": "LinkedServiceReference"
+                },
+                "typeProperties": {
+                    "scripts": [
+                        {
+                            "type": "NonQuery",
+                            "text": "\nCOPY INTO nyc_taxi_project.public.yellow_bronze \n(DOLOCATIONID, PULOCATIONID, RATECODEID, VENDORID, EXTRA, FARE_AMOUNT, IMPROVEMENT_SURCHARGE, PICKUP_DATETIME, DROPOFF_DATETIME, MTA_TAX, PASSENGER_COUNT, PAYMENT_TYPE, STORE_AND_FWD_FLAG, TIP_AMOUNT, TOLLS_AMOUNT, TOTAL_AMOUNT, TRIP_DISTANCE, TRIP_TYPE\n)\nfrom (\nselect\n $1:DOLocationID::int                           DOLocationID\n,$1:PULocationID::int                           PULocationID\n,$1:RatecodeID::INT                             RatecodeID\n,$1:VendorID::int                               VendorID\n,$1:extra::decimal(10,2)                        extra\n,$1:fare_amount::DECIMAL(10,2)                  fare_amount\n,$1:improvement_surcharge::decimal(10,2)        improvement_surcharge\n,$1:tpep_pickup_datetime::VARCHAR::timestamp_NTZ     pickup_datetime\n,$1:tpep_dropoff_datetime::VARCHAR::timestamp_NTZ    dropoff_datetime\n,$1:mta_tax::DECIMAL(10,2)                      mta_tax\n,$1:passenger_count::INT                        passenger_count\n,$1:payment_type::INT                           payment_type\n,$1:store_and_fwd_flag::string                  store_and_fwd_flag\n,$1:tip_amount::decimal(10,2)                   tip_amount\n,$1:tolls_amount::decimal(10,2)                 tolls_amount\n,$1:total_amount::decimal(10,2)                 total_amount\n,$1:trip_distance::decimal(10,2)                trip_distance\n,$1:trip_type::DECIMAL(10,2)                    trip_type\n--,$1\nfrom @nyc_taxi_project.public.azure_project_stage_gs\n(file_format =>nyc_taxi_project.public.parquet_taxigs, pattern => '.*yellow.*')\n);"
+                        }
+                    ],
+                    "scriptBlockExecutionTimeout": "02:00:00"
+                }
+            }
+        ],
+        "annotations": [],
+        "lastPublishTime": "2024-04-18T11:19:17Z"
+    },
+    "type": "Microsoft.DataFactory/factories/pipelines"
+}

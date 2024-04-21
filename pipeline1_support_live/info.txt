@@ -1,0 +1,6 @@
+selected resource name:		pipeline1
+selected resource type:		pipeline
+factory name:			gabriellasanchezadf
+factory location:		northeurope
+subscription id:		aa27f69a-5362-41e4-9c49-d25242165bd5
+time of download (UTC):		Sun, 21 Apr 2024 18:24:01 GMT

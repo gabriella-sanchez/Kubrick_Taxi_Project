@@ -1,0 +1,69 @@
+{
+    "name": "silver table pipeline",
+    "properties": {
+        "activities": [
+            {
+                "name": "use schema",
+                "type": "Script",
+                "dependsOn": [],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "linkedServiceName": {
+                    "referenceName": "Snowflake1",
+                    "type": "LinkedServiceReference"
+                },
+                "typeProperties": {
+                    "scripts": [
+                        {
+                            "type": "NonQuery",
+                            "text": "use schema public;"
+                        }
+                    ],
+                    "scriptBlockExecutionTimeout": "02:00:00"
+                }
+            },
+            {
+                "name": "creating silver table",
+                "type": "Script",
+                "dependsOn": [
+                    {
+                        "activity": "use schema",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "linkedServiceName": {
+                    "referenceName": "Snowflake1",
+                    "type": "LinkedServiceReference"
+                },
+                "typeProperties": {
+                    "scripts": [
+                        {
+                            "type": "NonQuery",
+                            "text": "\nCREATE OR REPLACE TABLE nyc_taxi_project.public.yellow_green_silver AS\nWITH FilteredGreen AS \n(\nSELECT g.*\nFROM nyc_taxi_project.public.green_bronze g\nLEFT JOIN error_log el\nON g.rowid = el.rowid\nAND EL.ERROR_OR_WARNING ='e'\nWHERE el.rowid IS NULL\n)\n,\nFilteredYellow AS \n(\nSELECT y.*\nFROM nyc_taxi_project.public.yellow_bronze y\nLEFT JOIN error_log el\nON y.rowid = el.rowid\nAND EL.ERROR_OR_WARNING ='e'\nWHERE EL.rowid IS NULL\n)\nSELECT\n    'green' AS source_table,\n    g.rowid AS rowid,\n    g.VendorID AS VendorID,\n    g.pickup_datetime AS pickup_datetime,\n    g.dropoff_datetime AS dropoff_datetime,\n    g.Passenger_count AS Passenger_count,\n    g.trip_distance AS trip_distance,\n    g.PULocationId AS PULocationId,\n    g.DOLocationID AS DOLocationID,\n    g.RateCodeID AS RateCodeID,\n    g.Store_and_fxd_flag AS Store_and_fxd_flag,\n    g.Payment_type AS Payment_type,\n    g.fare_amount AS fare_amount,\n    g.Extra AS Extra,\n    g.improvement_surcharge AS improvement_surcharge,\n    g.tip_amount AS tip_amount,\n    g.tolls_amount AS tolls_amount,\n    g.total_amount AS total_amount,\n    g.trip_type AS trip_type\nFROM FilteredGreen g\nUNION ALL\nSELECT\n    'yellow' AS source_table,\n    y.rowid AS rowid,\n    y.VendorID AS VendorID,\n    y.pickup_datetime AS pickup_datetime,\n    y.dropoff_datetime AS dropoff_datetime,\n    y.Passenger_count AS Passenger_count,\n    y.trip_distance AS trip_distance,\n    y.PULocationId AS PULocationId,\n    y.DOLocationID AS DOLocationID,\n    y.RateCodeID AS RateCodeID,\n    y.STORE_AND_FWD_FLAG AS STORE_AND_FWD_FLAG,\n    y.Payment_type AS Payment_type,\n    y.fare_amount AS fare_amount,\n    y.Extra AS Extra,\n    y.improvement_surcharge AS improvement_surcharge,\n    y.tip_amount AS tip_amount,\n    y.tolls_amount AS tolls_amount,\n    y.total_amount AS total_amount,\n    y.trip_type AS trip_type,\nFROM FILTEREDYELLOW y;\n"
+                        }
+                    ],
+                    "scriptBlockExecutionTimeout": "02:00:00"
+                }
+            }
+        ],
+        "annotations": [],
+        "lastPublishTime": "2024-04-18T10:31:06Z"
+    },
+    "type": "Microsoft.DataFactory/factories/pipelines"
+}

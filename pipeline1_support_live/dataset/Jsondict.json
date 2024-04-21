@@ -1,0 +1,33 @@
+{
+    "name": "Jsondict",
+    "properties": {
+        "linkedServiceName": {
+            "referenceName": "sourcedlinkedservice",
+            "type": "LinkedServiceReference"
+        },
+        "annotations": [],
+        "type": "Json",
+        "typeProperties": {
+            "location": {
+                "type": "AzureBlobFSLocation",
+                "fileName": "dict_listed_urls_y_and_g.json",
+                "fileSystem": "projectdata"
+            }
+        },
+        "schema": {
+            "type": "object",
+            "properties": {
+                "relative": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                },
+                "filename": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "type": "Microsoft.DataFactory/factories/datasets"
+}

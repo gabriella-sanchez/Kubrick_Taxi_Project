@@ -1,0 +1,168 @@
+{
+    "name": "green_warning",
+    "properties": {
+        "activities": [
+            {
+                "name": "use schema public",
+                "type": "Script",
+                "dependsOn": [],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "linkedServiceName": {
+                    "referenceName": "Snowflake1",
+                    "type": "LinkedServiceReference"
+                },
+                "typeProperties": {
+                    "scripts": [
+                        {
+                            "type": "NonQuery",
+                            "text": "use schema public;"
+                        }
+                    ],
+                    "scriptBlockExecutionTimeout": "02:00:00"
+                }
+            },
+            {
+                "name": "trip too long",
+                "type": "Script",
+                "dependsOn": [
+                    {
+                        "activity": "use schema public",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "linkedServiceName": {
+                    "referenceName": "Snowflake1",
+                    "type": "LinkedServiceReference"
+                },
+                "typeProperties": {
+                    "scripts": [
+                        {
+                            "type": "NonQuery",
+                            "text": "insert into error_log\nselect rowid,'green', 'w', 'trip too long'\nfrom green_bronze\nwhere NULLIF(DATEDIFF(day, pickup_datetime, dropoff_datetime), 0) > 0.5;"
+                        }
+                    ],
+                    "scriptBlockExecutionTimeout": "02:00:00"
+                }
+            },
+            {
+                "name": "tip too high",
+                "type": "Script",
+                "dependsOn": [
+                    {
+                        "activity": "trip too long",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "linkedServiceName": {
+                    "referenceName": "Snowflake1",
+                    "type": "LinkedServiceReference"
+                },
+                "typeProperties": {
+                    "scripts": [
+                        {
+                            "type": "NonQuery",
+                            "text": "insert into error_log\nselect rowid,'green', 'w', 'tip price might be high'\nfrom green_bronze\nWHERE\ntip_amount >100\nAND \nNULLIF(DATEDIFF(minute, pickup_datetime, dropoff_datetime), 0) between 1 and 10;"
+                        }
+                    ],
+                    "scriptBlockExecutionTimeout": "02:00:00"
+                }
+            },
+            {
+                "name": "distance and time doesnt add up",
+                "type": "Script",
+                "dependsOn": [
+                    {
+                        "activity": "tip too high",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "linkedServiceName": {
+                    "referenceName": "Snowflake1",
+                    "type": "LinkedServiceReference"
+                },
+                "typeProperties": {
+                    "scripts": [
+                        {
+                            "type": "NonQuery",
+                            "text": "insert into error_log\nselect rowid, 'green', 'w', 'distance and time does not add up'\nfrom green_bronze\nwhere\n(trip_distance / NULLIF(DATEDIFF(minute, pickup_datetime, dropoff_datetime), 0) * 60) > 100\nand \nNULLIF(DATEDIFF(minute, pickup_datetime, dropoff_datetime), 0) between 1 and 10;"
+                        }
+                    ],
+                    "scriptBlockExecutionTimeout": "02:00:00"
+                }
+            },
+            {
+                "name": "fare amount too high",
+                "type": "Script",
+                "dependsOn": [
+                    {
+                        "activity": "distance and time doesnt add up",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "linkedServiceName": {
+                    "referenceName": "Snowflake1",
+                    "type": "LinkedServiceReference"
+                },
+                "typeProperties": {
+                    "scripts": [
+                        {
+                            "type": "NonQuery",
+                            "text": "insert into error_log\nselect rowid, 'green','w', 'fare amount too high'\nfrom green_bronze\nWHERE\nfare_amount > 100\nAND \nNULLIF(DATEDIFF(minute, pickup_datetime, dropoff_datetime), 0) between 1 and 10;"
+                        }
+                    ],
+                    "scriptBlockExecutionTimeout": "02:00:00"
+                }
+            }
+        ],
+        "annotations": [],
+        "lastPublishTime": "2024-04-17T10:57:54Z"
+    },
+    "type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,69 @@
+{
+    "name": "gold table pipeline",
+    "properties": {
+        "activities": [
+            {
+                "name": "Script2",
+                "type": "Script",
+                "dependsOn": [],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "linkedServiceName": {
+                    "referenceName": "Snowflake1",
+                    "type": "LinkedServiceReference"
+                },
+                "typeProperties": {
+                    "scripts": [
+                        {
+                            "type": "NonQuery",
+                            "text": "use schema public;"
+                        }
+                    ],
+                    "scriptBlockExecutionTimeout": "02:00:00"
+                }
+            },
+            {
+                "name": "creating gold table",
+                "type": "Script",
+                "dependsOn": [
+                    {
+                        "activity": "Script2",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "linkedServiceName": {
+                    "referenceName": "Snowflake1",
+                    "type": "LinkedServiceReference"
+                },
+                "typeProperties": {
+                    "scripts": [
+                        {
+                            "type": "Query",
+                            "text": "\nCreate or replace table nyc_taxi_project.public.taxi_gold_fact\nas\nSELECT \nrowid\n,vendorid\n,source_table as taxi_type\n,cast(pickup_datetime as date) as pickup_date\n,cast(dropoff_datetime as date) as dropoff_date\n,cast(pickup_datetime as time) as pickup_time\n,cast(dropoff_datetime as time) as dropoff_time\n, passenger_count\n,trip_distance\n,PULocationId\n,DOLocationID\n,coalesce(ratecodeid, 100) as ratecodeid\n--,coalesce(Store_and_fxd_flag, 'x')\n,coalesce(payment_type, 99) as payment_type\n,coalesce(fare_amount, 0) as fare_amount\n,coalesce(extra, 0) as extra\n,coalesce(total_amount, 0) as total_amount\n,coalesce(tolls_amount, 0) as tolls_amount\n,coalesce(tip_amount, 0) as tip_amount\n, coalesce(improvement_surcharge, 0) as improvement_surcharge\n,coalesce(trip_type, 99) as trip_type\nfrom nyc_taxi_project.public.yellow_green_silver;"
+                        }
+                    ],
+                    "scriptBlockExecutionTimeout": "02:00:00"
+                }
+            }
+        ],
+        "annotations": [],
+        "lastPublishTime": "2024-04-19T09:09:15Z"
+    },
+    "type": "Microsoft.DataFactory/factories/pipelines"
+}
