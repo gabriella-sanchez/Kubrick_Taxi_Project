@@ -1,0 +1,47 @@
+# Introduction 
+
+- we would like to be able to view the taxi vehicle journeys in NYC in a readable format of tables. 
+
+- these tables can then be queried and used to create some data visualisations and data reports regarding the data we obtain.
+
+- we want this process to be an automated process and simulate monthly batch process starting from feb 2019 till the current date
+
+# Getting Started
+
+technology required:
+- visual studio code
+- azure data storage
+- azure data factory
+- azure dev ops
+- snowflake
+- lucid chart
+- databricks?
+
+programming languages used:
+- python
+- SQL
+
+- links to lucid chart to see schema/erd
+
+# Build and Test
+
+- first create an azure storage. this will be where the data we obtain from the website will be stored.
+
+- create a python function which will create url links like the website and store them in a dictionary in a JSON file
+
+- use the lookup activity and for each to go through the JSON file and use the url links to get the data from the website
+
+- create stages and tables in snowflake where the data will populate the data.
+
+- futher transformation of the data and cleaning will ensure data is good to be used in reports and in data visualisations.
+
+- validating the data in snowflake
+
+# Contribute
+
+- efficiency of the azure pipeline
+- alternate ways to retrieve data from website
+
+# Daily stand up documentation
+
+# Repos with code and other information
