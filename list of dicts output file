@@ -1,0 +1,106 @@
+[
+    {
+        "url": "https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2018-01.parquet",
+        "filename": "yellow_tripdata_2018-01.parquet"
+    },
+    {
+        "url": "https://d37ci6vzurychx.cloudfront.net/trip-data/green_tripdata_2018-01.parquet",
+        "filename": "green_tripdata_2018-01.parquet"
+    },
+    {
+        "url": "https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2018-02.parquet",
+        "filename": "yellow_tripdata_2018-02.parquet"
+    },
+    {
+        "url": "https://d37ci6vzurychx.cloudfront.net/trip-data/green_tripdata_2018-02.parquet",
+        "filename": "green_tripdata_2018-02.parquet"
+    },
+    {
+        "url": "https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2018-03.parquet",
+        "filename": "yellow_tripdata_2018-03.parquet"
+    },
+    {
+        "url": "https://d37ci6vzurychx.cloudfront.net/trip-data/green_tripdata_2018-03.parquet",
+        "filename": "green_tripdata_2018-03.parquet"
+    },
+    {
+        "url": "https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2018-04.parquet",
+        "filename": "yellow_tripdata_2018-04.parquet"
+    },
+    {
+        "url": "https://d37ci6vzurychx.cloudfront.net/trip-data/green_tripdata_2018-04.parquet",
+        "filename": "green_tripdata_2018-04.parquet"
+    },
+    {
+        "url": "https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2018-05.parquet",
+        "filename": "yellow_tripdata_2018-05.parquet"
+    },
+    {
+        "url": "https://d37ci6vzurychx.cloudfront.net/trip-data/green_tripdata_2018-05.parquet",
+        "filename": "green_tripdata_2018-05.parquet"
+    },
+    {
+        "url": "https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2018-06.parquet",
+        "filename": "yellow_tripdata_2018-06.parquet"
+    },
+    {
+        "url": "https://d37ci6vzurychx.cloudfront.net/trip-data/green_tripdata_2018-06.parquet",
+        "filename": "green_tripdata_2018-06.parquet"
+    },
+    {
+        "url": "https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2018-07.parquet",
+        "filename": "yellow_tripdata_2018-07.parquet"
+    },
+    {
+        "url": "https://d37ci6vzurychx.cloudfront.net/trip-data/green_tripdata_2018-07.parquet",
+        "filename": "green_tripdata_2018-07.parquet"
+    },
+    {
+        "url": "https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2018-08.parquet",
+        "filename": "yellow_tripdata_2018-08.parquet"
+    },
+    {
+        "url": "https://d37ci6vzurychx.cloudfront.net/trip-data/green_tripdata_2018-08.parquet",
+        "filename": "green_tripdata_2018-08.parquet"
+    },
+    {
+        "url": "https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2018-09.parquet",
+        "filename": "yellow_tripdata_2018-09.parquet"
+    },
+    {
+        "url": "https://d37ci6vzurychx.cloudfront.net/trip-data/green_tripdata_2018-09.parquet",
+        "filename": "green_tripdata_2018-09.parquet"
+    },
+    {
+        "url": "https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2018-10.parquet",
+        "filename": "yellow_tripdata_2018-10.parquet"
+    },
+    {
+        "url": "https://d37ci6vzurychx.cloudfront.net/trip-data/green_tripdata_2018-10.parquet",
+        "filename": "green_tripdata_2018-10.parquet"
+    },
+    {
+        "url": "https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2018-11.parquet",
+        "filename": "yellow_tripdata_2018-11.parquet"
+    },
+    {
+        "url": "https://d37ci6vzurychx.cloudfront.net/trip-data/green_tripdata_2018-11.parquet",
+        "filename": "green_tripdata_2018-11.parquet"
+    },
+    {
+        "url": "https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2018-12.parquet",
+        "filename": "yellow_tripdata_2018-12.parquet"
+    },
+    {
+        "url": "https://d37ci6vzurychx.cloudfront.net/trip-data/green_tripdata_2018-12.parquet",
+        "filename": "green_tripdata_2018-12.parquet"
+    },
+    {
+        "url": "https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2019-01.parquet",
+        "filename": "yellow_tripdata_2019-01.parquet"
+    },
+    {
+        "url": "https://d37ci6vzurychx.cloudfront.net/trip-data/green_tripdata_2019-01.parquet",
+        "filename": "green_tripdata_2019-01.parquet"
+    }
+]
